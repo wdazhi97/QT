@@ -1,2 +1,7 @@
-git is a free software
-git is a distrubution
+
+#include<stdiio.h>
+int main()
+{
+  printf("Hello world\n");
+  return 0;
+}
