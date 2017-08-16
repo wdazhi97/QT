@@ -40,7 +40,7 @@ class UserModelFilter(admin.SimpleListFilter):
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {
-            'fields': ('email', 'password')
+            'fields': ('email', 'password','name')
         }),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',

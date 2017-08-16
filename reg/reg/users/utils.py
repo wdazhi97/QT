@@ -125,9 +125,9 @@ def send_activation_email(
             'protocol': 'https' if request.is_secure() else 'http',
         }
 
-        subject = render_to_string(subject_template, context)
+        subject = render_to_string(subject_template, context)#模板或render添加context
         # email subject *must not* contain newlines
-        subject = ''.join(subject.splitlines())
+        subject = ''.join(subject.splitlines())#去掉换行符
         body = render_to_string(email_template, context)
 
         email_message = EmailMultiAlternatives(subject, body, from_email, [user.email])

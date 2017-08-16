@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from .conf import settings
 
 
-class LengthValidator(object):
+class LengthValidator(object): #密码长度验证
     code = 'length'
 
     def __init__(self, min_length=None, max_length=None):
@@ -26,10 +26,10 @@ class LengthValidator(object):
                 _('Password too long (must be %s characters or less)') % self.max_length,
                 code=self.code)
 
-length_validator = LengthValidator()
+length_validator = LengthValidator() 
 
 
-class ComplexityValidator(object):
+class ComplexityValidator(object): #验证密码复杂性
     code = 'complexity'
     message = _('Weak password, %s')
 
@@ -79,12 +79,12 @@ class ComplexityValidator(object):
 complexity_validator = ComplexityValidator()
 
 
-class PasswordField(forms.CharField):
+class PasswordField(forms.CharField): #密码输入表单
     widget = forms.PasswordInput()
     default_validators = [length_validator, complexity_validator, ]
 
 
-class HoneyPotField(forms.BooleanField):
+class HoneyPotField(forms.BooleanField): #验证人登录
     widget = CheckboxInput
 
     def __init__(self, *args, **kwargs):
@@ -100,7 +100,7 @@ class HoneyPotField(forms.BooleanField):
             raise forms.ValidationError(_('Doh! You are a robot!'))
 
 
-class EmailDomainValidator(object):
+class EmailDomainValidator(object): #邮箱有效性验证
     message = _('Sorry, %s emails are not allowed. Please use a different email address.')
     code = 'invalid'
 

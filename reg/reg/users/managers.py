@@ -14,10 +14,13 @@ class UserManager(BaseUserManager):
         """
         try:
             qs = super(UserManager, self).get_queryset()
+			# If the queryset isn't already ordered we need to add an
+            # artificial ordering here to make sure that all formsets
+            # constructed from this queryset have the same form order.
         except AttributeError:  # pragma: no cover
             qs = super(UserManager, self).get_query_set()
         return qs
-
+		
     get_query_set = get_queryset
 
     def _create_user(self, email, password,

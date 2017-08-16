@@ -6,12 +6,16 @@ from .views import (activate, activation_complete, register,
 
 urlpatterns = [
     url(r'^register/$', register, name='users_register'),
+	#注册
     url(r'^register/closed/$', registration_closed,
         name='users_registration_closed'),
+	#注册关闭
     url(r'^register/complete/$', registration_complete,
         name='users_registration_complete'),
+	#注册完成
     url(r'^activate/complete/$', activation_complete,
         name='users_activation_complete'),
+	#激活完成
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         activate, name='users_activate'),
 
@@ -19,7 +23,7 @@ urlpatterns = [
         template_name='users/login.html'),
         name='users_login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(
-        template_name='users/logout.html'),
+        template_name='users/logout.html',next_page='users_login'),
 
         name='users_logout'),
     url(r'^password_change/$', auth_views.PasswordChangeView.as_view(

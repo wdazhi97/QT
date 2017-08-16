@@ -7,19 +7,19 @@ from .conf import settings
 from .fields import HoneyPotField, PasswordField, UsersEmailField
 
 
-class UserCreationForm(forms.ModelForm):
+class UserCreationForm(forms.ModelForm):#用户表单
 
     error_messages = {
         'duplicate_email': _('A user with that email already exists.'),
         'password_mismatch': _('The two password fields didn\'t match.'),
-    }
-
-    email = UsersEmailField(label=_('Email Address'), max_length=255)
+	}
+    email = UsersEmailField(label= _('Email Address'), max_length= 255)
+    
     password1 = PasswordField(label=_('Password'))
     password2 = PasswordField(
         label=_('Password Confirmation'),
         help_text=_('Enter the same password as above, for verification.'))
-
+    name=forms.CharField(label=_('User name'),max_length=30)
     class Meta:
         model = get_user_model()
         fields = ('email',)
@@ -37,7 +37,7 @@ class UserCreationForm(forms.ModelForm):
             self.error_messages['duplicate_email'],
             code='duplicate_email',
         )
-
+	#检验重复的email
     def clean_password2(self):
 
         password1 = self.cleaned_data.get('password1')
@@ -48,18 +48,19 @@ class UserCreationForm(forms.ModelForm):
                 code='password_mismatch',
             )
         return password2
-
+	#两次密码不一致
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data['password1'])
         user.is_active = not settings.USERS_VERIFY_EMAIL
+        user.name=self.cleaned_data['name']
         if commit:
             user.save()
         return user
 
-
+	
 class UserChangeForm(forms.ModelForm):
-
+	#只读的哈希字段
     password = ReadOnlyPasswordHashField(label=_('Password'), help_text=_(
         'Raw passwords are not stored, so there is no way to see '
         'this user\'s password, but you can change the password '
@@ -70,7 +71,7 @@ class UserChangeForm(forms.ModelForm):
         exclude = ()
 
     def __init__(self, *args, **kwargs):
-        super(UserChangeForm, self).__init__(*args, **kwargs)
+        super(UserChangeForm, self).__init__(*args, **kwargs)#父对象初始化
         f = self.fields.get('user_permissions', None)
         if f is not None:
             f.queryset = f.queryset.select_related('content_type')

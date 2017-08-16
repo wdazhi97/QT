@@ -11,19 +11,19 @@ from .managers import UserInheritanceManager, UserManager
 
 class AbstractUser(AbstractBaseUser, PermissionsMixin):
     USERS_AUTO_ACTIVATE = not settings.USERS_VERIFY_EMAIL
-
+    name=models.CharField(max_length=30,null=True)
     email = models.EmailField(
-        _('email address'), max_length=255, unique=True, db_index=True)
+        _('email address'), max_length=255, unique=True, db_index=True) #邮箱
     is_staff = models.BooleanField(
         _('staff status'), default=False,
-        help_text=_('Designates whether the user can log into this admin site.'))
+        help_text=_('Designates whether the user can log into this admin site.')) #能进入管理台才能更改
 
     is_active = models.BooleanField(
         _('active'), default=USERS_AUTO_ACTIVATE,
         help_text=_('Designates whether this user should be treated as '
-                    'active. Unselect this instead of deleting accounts.'))
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    user_type = models.ForeignKey(ContentType, null=True, editable=False)
+                    'active. Unselect this instead of deleting accounts.')) #是否激活
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now) #注册日期
+    user_type = models.ForeignKey(ContentType, null=True, editable=False) #用户类型
 
     objects = UserInheritanceManager()
     base_objects = UserManager()

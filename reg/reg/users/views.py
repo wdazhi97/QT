@@ -66,7 +66,7 @@ def register(request,
                     'subject_template': activation_email_subject_template_name,
                     'html_email_template': activation_email_html_template_name,
                 }
-                send_activation_email(**opts)
+                send_activation_email(**opts)#发送注册邮件
                 user_registered.send(sender=user.__class__, request=request, user=user)
             return redirect(post_registration_redirect)
     else:
