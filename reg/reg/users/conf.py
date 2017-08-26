@@ -10,7 +10,7 @@ class UsersAppConf(AppConf):
     EMAIL_CONFIRMATION_TIMEOUT_DAYS = 3#邮箱确认时间
     SPAM_PROTECTION = True #垃圾邮箱保护
     REGISTRATION_OPEN = True #注册开关
-    AUTO_LOGIN_ON_ACTIVATION = True #注册后自定激活开关
+    AUTO_LOGIN_ON_ACTIVATION = True #激活后自动登录开关
     AUTO_LOGIN_AFTER_REGISTRATION = False #注册后自动登录开关
     PASSWORD_MIN_LENGTH = 5 #密码最小长度
     PASSWORD_MAX_LENGTH = None #密码最大长度

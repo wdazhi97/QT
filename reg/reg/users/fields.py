@@ -5,10 +5,56 @@ from django.core.validators import validate_email
 from django.forms.widgets import CheckboxInput
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
-
+from django.contrib.auth import get_user_model
 from .conf import settings
-
-
+class NumlengthValidator(object):
+    code='telephone number'
+    def __init__(self):
+        self.numlength=11
+    def __call__(self,value):
+        if len(value)!=11:
+            raise forms.ValidationError(_('手机号长度错误'),code=self.code)
+        if not value.isdigit():
+            raise forms.ValidationError(_('手机号必须为纯数字'),code=self.code)
+phonenumberlengthValidator=NumlengthValidator();
+class NumDoubleValidator(object):
+    code='phonenumber repeat'
+    def __init__(self):
+        self.phonenumber=None
+    def __call__(self,value):
+        try:
+            get_user_model()._default_manager.get(phonenumber=value)
+        except get_user_model().DoesNotExist:
+            return
+        raise forms.ValidationError(_('The telephone nunmber has been used'),code=self.code)
+phonenumdoublevalidator=NumDoubleValidator()
+class UserphonenumberField(forms.CharField):
+    default_validators=[phonenumberlengthValidator,phonenumdoublevalidator]
+class NamelengthValidator(object):
+    code='shortname'
+    def __init__(self):
+        self.namelength=3
+    def __call__(self,value):
+        if self.namelength and len(value)<self.namelength:
+            raise forms.ValidationError(
+            _('Name too short'),code=self.code)
+namelengthvalidator=NamelengthValidator();
+class NameDoubleValidator(object):
+    code='name repeat'
+    def __init__(self):
+        self.username=None
+    def __call__(self,value):
+        try:
+            get_user_model()._default_manager.get(name=value)
+        except get_user_model().DoesNotExist:
+            return 
+        raise forms.ValidationError(
+            _('The name has been used'),
+            code=self.code,
+        )
+namedoublevalidator=NameDoubleValidator()
+class UsernameField(forms.CharField):
+    default_validators=[namelengthvalidator,namedoublevalidator,]
 class LengthValidator(object): #密码长度验证
     code = 'length'
 
@@ -105,6 +151,7 @@ class EmailDomainValidator(object): #邮箱有效性验证
     code = 'invalid'
 
     def __init__(self, ):
+	
         self.domain_blacklist = settings.USERS_EMAIL_DOMAINS_BLACKLIST
         self.domain_whitelist = settings.USERS_EMAIL_DOMAINS_WHITELIST
 
@@ -129,4 +176,4 @@ validate_email_domain = EmailDomainValidator()
 
 
 class UsersEmailField(forms.EmailField):
-    default_validators = [validate_email, validate_email_domain]
+    default_validators = [validate_email, validate_email_domain]#定义验证器

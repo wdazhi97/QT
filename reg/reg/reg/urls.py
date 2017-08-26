@@ -15,8 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
-
+from django.conf import settings
+from obj import views
+from captcha import views as cap_views
+from django.conf.urls.static import static
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 	url(r'^accounts/',include('users.urls')),
-]
+    url(r'^$',views.index,name='index'),
+    url(r'^404$',views.page404,name='page404'),
+    url(r'^captcha/', include('captcha.urls')),
+] + static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)

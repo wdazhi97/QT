@@ -2,24 +2,31 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import ugettext_lazy as _
+from captcha.fields import CaptchaField
 
 from .conf import settings
-from .fields import HoneyPotField, PasswordField, UsersEmailField
-
+from .fields import HoneyPotField, PasswordField, UsersEmailField,UsernameField,UserphonenumberField
+from .models import bill,Internetrecord
 
 class UserCreationForm(forms.ModelForm):#用户表单
 
     error_messages = {
-        'duplicate_email': _('A user with that email already exists.'),
-        'password_mismatch': _('The two password fields didn\'t match.'),
+        'duplicate_email': _('该邮箱已被注册.'),
+        'password_mismatch': _('两次密码不一致.'),
 	}
-    email = UsersEmailField(label= _('Email Address'), max_length= 255)
+    email = UsersEmailField(label= _('邮箱地址'), max_length= 255)
     
-    password1 = PasswordField(label=_('Password'))
+    password1 = PasswordField(label=_('密码'))
     password2 = PasswordField(
-        label=_('Password Confirmation'),
-        help_text=_('Enter the same password as above, for verification.'))
-    name=forms.CharField(label=_('User name'),max_length=30)
+        label=_('确认密码'),
+        help_text=_('输入相同的密码，以便确认'))
+    name=UsernameField(label=_('用户名'),max_length=30)
+    realname=forms.CharField(label=_('真实姓名'),max_length=15)
+    sex=forms.ChoiceField(label=_('性别'),choices=(('男',_('男')),('女',_('女'))))
+    billhead=forms.CharField(label=_('发票抬头'))
+    phonenumber=UserphonenumberField(label=_('手机号码'))
+    birth=forms.DateField(label=_('出生日期'))
+    captcha = CaptchaField()
     class Meta:
         model = get_user_model()
         fields = ('email',)
@@ -49,19 +56,35 @@ class UserCreationForm(forms.ModelForm):#用户表单
             )
         return password2
 	#两次密码不一致
+    def clean_name(self):
+        name=self.cleaned_data.get('name')
+        if len(name)>15:
+            raise forms.ValidationError(_('用户名过长'),code='namelong')
+        return name
+    def clean_realname(self):
+        realname=self.cleaned_data['realname']
+        if len(realname)==0:
+            raise forms.ValidationError(_('姓名不能为空'),code='empty name')
+        return realname
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data['password1'])
         user.is_active = not settings.USERS_VERIFY_EMAIL
         user.name=self.cleaned_data['name']
+        user.sex=self.cleaned_data['sex']
+        billhead=self.cleaned_data['billhead']
+        user.phonenumber=self.cleaned_data['phonenumber']
+        user.realname=self.cleaned_data['realname']
         if commit:
             user.save()
+            bill.objects.create(user=user,billhead=billhead)
+            #Internetrecord.objects.create(page=request.get_full_path(),IP=request.META['REMOTE_ADDR'])
         return user
 
 	
 class UserChangeForm(forms.ModelForm):
 	#只读的哈希字段
-    password = ReadOnlyPasswordHashField(label=_('Password'), help_text=_(
+    password = ReadOnlyPasswordHashField(label=_('密码'), help_text=_(
         'Raw passwords are not stored, so there is no way to see '
         'this user\'s password, but you can change the password '
         'using <a href=\"password/\">this form</a>.'))
@@ -85,7 +108,7 @@ class RegistrationForm(UserCreationForm):
     required_css_class = 'required'
 
 
-class RegistrationFormTermsOfService(RegistrationForm):
+class RegistrationFormTermsOfService(RegistrationForm):#添加同意条款的单选框
     """
     Subclass of ``RegistrationForm`` which adds a required checkbox
     for agreeing to a site's Terms of Service.
@@ -99,7 +122,7 @@ class RegistrationFormTermsOfService(RegistrationForm):
         })
 
 
-class RegistrationFormHoneypot(RegistrationForm):
+class RegistrationFormHoneypot(RegistrationForm):#防止非人类注册
     """
     Subclass of ``RegistrationForm`` which adds a honeypot field
     for Spam Prevention

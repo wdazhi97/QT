@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .conf import settings
 from .forms import UserChangeForm, UserCreationForm
-from .models import User
+from .models import User ,bill,Internetrecord,pay
 from .utils import send_activation_email
 
 try:
@@ -12,7 +12,12 @@ try:
 except ImportError:  # pragma: no cover
     from django.contrib.admin.util import model_ngettext
 
-
+class billinline(admin.StackedInline):
+    model = bill
+    extra=1
+class payinline(admin.StackedInline):
+    model = pay
+    extra=1
 class UserModelFilter(admin.SimpleListFilter):
     """
     An admin list filter for the UserAdmin which enables
@@ -40,7 +45,10 @@ class UserModelFilter(admin.SimpleListFilter):
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {
-            'fields': ('email', 'password','name')
+            'fields': ('email', 'password','name','realname','sex','phonenumber')
+        }),
+        (_('other'),{
+            'fields':('email2','officephone','job','workunit','address','postcode')
         }),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',
@@ -57,7 +65,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'password1', 'password2')
         }),
     )
-
+    inlines = [billinline,payinline]
     form = UserChangeForm
     add_form = UserCreationForm
 
@@ -113,3 +121,4 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Internetrecord)

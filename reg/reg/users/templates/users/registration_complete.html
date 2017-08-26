@@ -2,5 +2,6 @@
 {% load i18n %}
 
 {% block content %}
+{% csrf_token %}
 <p>{% trans "You are now registered. Activation email sent." %}</p>
 {% endblock %}
